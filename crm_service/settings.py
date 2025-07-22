@@ -4,6 +4,7 @@ Django settings for CRM Service avec schémas séparés
 
 import os
 from pathlib import Path
+from datetime import timedelta
 from decouple import config
 from corsheaders.defaults import default_headers
 
@@ -38,18 +39,19 @@ SHARED_APPS = [
     # Third party apps
     'rest_framework',
     'corsheaders',
+    'django_filters',  # Ajout pour les filtres DRF
     
-    # Apps partagées (contient les modèles Client et Domain)
-    'tiers',  # Modèles tenant partagés
+    # Apps partagées
+    'tenant_metier',  # App de gestion des tenants
 ]
 
 TENANT_APPS = [
     # Apps spécifiques aux tenants (modèles métier isolés)
-    'tenant_metier',  # Modèles métier des tiers (isolés par schéma)
-    'opportunites',  # Modèles métier des opportunités
+    'tenant_metier',  # Aussi dans les apps tenant pour les modèles de base
+    'crm',  # Notre nouvelle app CRM unifiée
 ]
 
-INSTALLED_APPS = SHARED_APPS + TENANT_APPS
+INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'tiers.middleware_hybrid.HeaderTenantMiddleware',  # Middleware hybride pour headers (remplace TenantMainMiddleware)
+    'tenant_metier.middleware.HeaderTenantMiddleware',  # Middleware tenant robuste
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -154,6 +156,11 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
@@ -208,7 +215,7 @@ LOGGING = {
         'level': config('LOG_LEVEL', default='INFO'),
     },
     'loggers': {
-        'tiers': {
+        'crm': {  # Mise à jour du logger pour la nouvelle app
             'handlers': ['console', 'file'],
             'level': config('LOG_LEVEL', default='INFO'),
             'propagate': False,
@@ -217,10 +224,10 @@ LOGGING = {
 }
 
 # Configuration django-tenants
-TENANT_MODEL = 'tiers.Client'
-TENANT_DOMAIN_MODEL = 'tiers.Domain'
+TENANT_MODEL = 'tenant_metier.Client'  # Mise à jour du modèle tenant
+TENANT_DOMAIN_MODEL = 'tenant_metier.Domain'  # Mise à jour du modèle domain
 
-# Configuration tenant schema (garder pour compatibilité)
+# Configuration tenant schema
 TENANT_SCHEMA_PREFIX = 'tenant_'
 
 # Sécurité
@@ -233,3 +240,23 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
+
+# Configuration tenant
+TENANT_SERVICE_URL = config('TENANT_SERVICE_URL', default='http://localhost:8001')
+
+# Configuration du cache local
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'crm-service-cache',
+        'TIMEOUT': 300,  # 5 minutes par défaut
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # Limiter la taille du cache
+            'CULL_FREQUENCY': 3,  # Supprimer 1/3 des entrées quand le cache est plein
+        }
+    }
+}
+
+# Utiliser le cache local comme backend de session
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
