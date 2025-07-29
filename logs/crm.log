@@ -898,3 +898,102 @@ INFO 2025-07-22 16:52:55,269 tiers 24456 16632 Récupération vue_360 pour le tier
 INFO 2025-07-22 16:52:55,271 tiers 24456 31720 Récupération vue_360 pour le tier af9fcfcb-900a-4b28-8a8d-c8ac6cb24323
 INFO 2025-07-22 16:52:55,447 tiers 24456 16632 Vue_360 récupérée avec succès pour le tier af9fcfcb-900a-4b28-8a8d-c8ac6cb24323
 INFO 2025-07-22 16:52:55,467 tiers 24456 31720 Vue_360 récupérée avec succès pour le tier af9fcfcb-900a-4b28-8a8d-c8ac6cb24323
+INFO 2025-07-22 20:47:07,834 tiers 24800 30128 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-22 20:47:07,835 tiers 24800 30128 Tier créé avec succès: 2e92e27e-ba7a-40db-85c3-56a485330ed9 - fff
+INFO 2025-07-22 22:28:28,353 opportunities 11748 45664 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-22 22:43:07,370 opportunities 45492 27580 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-23 11:03:30,917 tiers 27180 26724 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 11:03:30,917 tiers 27180 26724 Tier créé avec succès: a850f6da-8b81-4eea-9384-cd79e328e9a9 - MEHDI
+INFO 2025-07-23 11:04:43,884 tiers 27180 11076 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 11:04:43,884 tiers 27180 11076 Tier créé avec succès: 42c70e3d-f886-477f-b97d-f1e393536331 - EIGSI
+INFO 2025-07-23 12:16:31,028 tiers 27180 27472 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 12:16:31,028 tiers 27180 27472 Tier créé avec succès: a8fb8b1f-6d25-409e-be3e-18987ebd2466 - Olivier
+INFO 2025-07-23 12:17:06,731 tiers 27180 26952 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:17:06,769 tiers 27180 26952 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:17:07,546 tiers 27180 28528 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:17:07,588 tiers 27180 28528 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:19:19,102 opportunities 27180 1968 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 12:44:03,754 tiers 27180 29200 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:44:03,794 tiers 27180 29200 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:44:04,700 tiers 27180 1004 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 12:44:04,742 tiers 27180 1004 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:15:54,213 tiers 27180 27624 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:15:54,214 tiers 27180 28656 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:15:54,266 tiers 27180 27624 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:15:54,266 tiers 27180 28656 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:23,402 tiers 27180 15312 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:23,403 tiers 27180 24776 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:23,450 tiers 27180 15312 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:23,451 tiers 27180 24776 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:35,142 tiers 27180 29188 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:35,144 tiers 27180 8836 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:35,189 tiers 27180 29188 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:19:35,190 tiers 27180 8836 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:21:02,041 opportunities 27180 24636 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:29:48,386 opportunities 27180 26932 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:30:02,762 tiers 27180 28608 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:30:02,762 tiers 27180 22244 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:30:02,810 tiers 27180 22244 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:30:02,810 tiers 27180 28608 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:30:52,271 opportunities 27180 27892 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:32:10,153 opportunities 27180 25472 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:33:19,826 opportunities 27180 28592 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:33:46,389 tiers 27180 8688 Récupération vue_360 pour le tier 42c70e3d-f886-477f-b97d-f1e393536331
+INFO 2025-07-23 13:33:46,431 tiers 27180 8688 Vue_360 récupérée avec succès pour le tier 42c70e3d-f886-477f-b97d-f1e393536331
+INFO 2025-07-23 13:33:46,505 tiers 27180 19560 Récupération vue_360 pour le tier 42c70e3d-f886-477f-b97d-f1e393536331
+INFO 2025-07-23 13:33:46,562 tiers 27180 19560 Vue_360 récupérée avec succès pour le tier 42c70e3d-f886-477f-b97d-f1e393536331
+INFO 2025-07-23 13:33:57,110 tiers 27180 14164 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:33:57,110 tiers 27180 29480 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:33:57,163 tiers 27180 29480 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:33:57,164 tiers 27180 14164 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:09,380 tiers 27180 27280 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:09,423 tiers 27180 27280 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:18,878 tiers 27180 24984 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:18,928 tiers 27180 24984 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:26,887 tiers 27180 1944 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:36:26,927 tiers 27180 1944 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:37:00,794 tiers 27180 27420 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:37:00,795 tiers 27180 18280 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:37:00,849 tiers 27180 27420 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:37:00,849 tiers 27180 18280 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:37:52,162 opportunities 27180 22364 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-23 13:44:03,631 tiers 27180 26776 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:44:03,631 tiers 27180 24556 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:44:03,680 tiers 27180 26776 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:44:03,680 tiers 27180 24556 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-23 13:44:44,673 opportunities 27180 28320 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-24 08:30:06,710 opportunities 27180 33564 Cache invalidé pour tenant e98f6cb6-1305-490a-9c41-2fab84f1bb80
+INFO 2025-07-24 21:53:57,423 tiers 27180 10728 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-24 21:53:57,425 tiers 27180 22924 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-24 21:53:57,479 tiers 27180 22924 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-24 21:53:57,479 tiers 27180 10728 Vue_360 récupérée avec succès pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-25 16:21:24,124 tiers 33332 37840 Cache invalidé pour tenant 31f96c39-bd7f-453e-a7f1-88495e70272b
+INFO 2025-07-25 16:21:24,125 tiers 33332 37840 Tier créé avec succès: fa166c2a-620d-455f-b819-39bfa31232d4 - Trésor ILOKI
+INFO 2025-07-25 16:41:04,228 tiers 33332 36356 Récupération vue_360 pour le tier bb337b13-aa3a-4e41-b812-176f8a18450f
+INFO 2025-07-25 16:41:04,321 tiers 33332 36356 Vue_360 récupérée avec succès pour le tier bb337b13-aa3a-4e41-b812-176f8a18450f
+INFO 2025-07-25 16:41:05,327 tiers 33332 7728 Récupération vue_360 pour le tier bb337b13-aa3a-4e41-b812-176f8a18450f
+INFO 2025-07-25 16:41:05,360 tiers 33332 7728 Vue_360 récupérée avec succès pour le tier bb337b13-aa3a-4e41-b812-176f8a18450f
+INFO 2025-07-25 21:48:47,583 tiers 33332 10716 Cache invalidé pour tenant 31f96c39-bd7f-453e-a7f1-88495e70272b
+INFO 2025-07-25 21:48:47,583 tiers 33332 10716 Tier créé avec succès: ad00f5b0-ffeb-4ab5-bdf1-5508d88bc4ef - Olivier
+INFO 2025-07-25 22:05:57,996 tiers 31504 31128 Cache invalidé pour tenant 31f96c39-bd7f-453e-a7f1-88495e70272b
+INFO 2025-07-25 22:05:57,997 tiers 31504 31128 Tier créé avec succès: 027cf0e5-d426-48ca-b46a-7c384d22edaa - Vanessa
+INFO 2025-07-25 22:05:59,013 tiers 31504 28164 Récupération vue_360 pour le tier 027cf0e5-d426-48ca-b46a-7c384d22edaa
+INFO 2025-07-25 22:05:59,015 tiers 31504 37752 Récupération vue_360 pour le tier 027cf0e5-d426-48ca-b46a-7c384d22edaa
+INFO 2025-07-25 22:05:59,117 tiers 31504 28164 Vue_360 récupérée avec succès pour le tier 027cf0e5-d426-48ca-b46a-7c384d22edaa
+INFO 2025-07-25 22:05:59,117 tiers 31504 37752 Vue_360 récupérée avec succès pour le tier 027cf0e5-d426-48ca-b46a-7c384d22edaa
+INFO 2025-07-25 22:10:47,088 opportunities 31504 37152 Cache invalidé pour tenant 31f96c39-bd7f-453e-a7f1-88495e70272b
+INFO 2025-07-26 13:42:20,629 tiers 30812 34528 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+INFO 2025-07-26 13:42:20,630 tiers 30812 17948 Récupération vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466
+ERROR 2025-07-26 13:42:20,637 tiers 30812 34528 Erreur dans vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466: No Tiers matches the given query.
+ERROR 2025-07-26 13:42:20,638 tiers 30812 17948 Erreur dans vue_360 pour le tier a8fb8b1f-6d25-409e-be3e-18987ebd2466: No Tiers matches the given query.
+INFO 2025-07-26 17:23:35,319 opportunities 30812 30020 Cache invalidé pour tenant 31f96c39-bd7f-453e-a7f1-88495e70272b
+INFO 2025-07-28 10:02:24,296 opportunities 30812 37108 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-29 10:20:30,311 tiers 30812 14028 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-29 10:20:30,312 tiers 30812 14028 Tier créé avec succès: 6b200eb0-3106-426c-9ada-f9fa6dc6e49a - test
+INFO 2025-07-29 10:21:45,431 opportunities 30812 21536 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-29 10:51:44,962 tiers 30812 41460 Cache invalidé pour tenant 8dd6f442-cd07-4993-8930-10abb2b23e7d
+INFO 2025-07-29 10:51:44,962 tiers 30812 41460 Tier créé avec succès: d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21 - testu (1753782704012)
+INFO 2025-07-29 10:53:54,340 tiers 30812 37428 Récupération vue_360 pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
+INFO 2025-07-29 10:53:54,400 tiers 30812 37428 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
+INFO 2025-07-29 10:53:55,178 tiers 30812 11696 Récupération vue_360 pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
+INFO 2025-07-29 10:53:55,227 tiers 30812 11696 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21

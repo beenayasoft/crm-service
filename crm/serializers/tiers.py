@@ -110,7 +110,8 @@ class TiersCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tiers
-        fields = ['nom', 'type', 'relation', 'siret', 'tva', 'adresses', 'contacts']
+        fields = ['id', 'nom', 'type', 'relation', 'siret', 'tva', 'adresses', 'contacts']
+        read_only_fields = ['id']
 
     def validate_siret(self, value):
         """Validation du numéro SIRET"""

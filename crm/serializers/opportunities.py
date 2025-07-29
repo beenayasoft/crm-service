@@ -56,10 +56,11 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Opportunity
         fields = [
-            'name', 'tier', 'stage', 'estimated_amount',
+            'id', 'name', 'tier', 'stage', 'estimated_amount',
             'probability', 'expected_close_date', 'source',
             'description', 'assigned_to'
         ]
+        read_only_fields = ['id']
 
     def validate_estimated_amount(self, value):
         """Validation du montant estimé"""

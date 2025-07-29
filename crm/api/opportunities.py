@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.cache import cache
+from django.db import models
 from django.db.models import Count, Sum, Avg, Q
 import hashlib
 import json
@@ -308,7 +309,11 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             stage__in=[OpportunityStatus.WON, OpportunityStatus.LOST]
         ).aggregate(
             total=Sum('estimated_amount'),
-            weighted_total=Sum('estimated_amount', filter=Q(probability__gt=0)) / 100.0
+            weighted_total=Sum(
+                'estimated_amount', 
+                filter=Q(probability__gt=0),
+                output_field=models.DecimalField(max_digits=12, decimal_places=2)
+            ) * models.Value(0.01, output_field=models.DecimalField(max_digits=5, decimal_places=2))
         )
         
         stats_data = {

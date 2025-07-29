@@ -1,12 +1,12 @@
 import uuid
 import logging
-from django.db import connection
+from django.db import connection, transaction, IntegrityError
 import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.http import JsonResponse
 from django_tenants.utils import get_tenant_model, schema_context
-from django_tenants.management.commands.migrate_schemas import Command as MigrateCommand
+from django.core.management import call_command
 from .models import Client, Domain
 
 logger = logging.getLogger(__name__)
@@ -141,6 +141,7 @@ class HeaderTenantMiddleware:
     def _get_or_create_tenant(self, tenant_uuid, schema_name, tenant_name):
         """
         Récupère un tenant par son UUID, ou le crée s'il n'existe pas.
+        Gère les race conditions lors de créations simultanées.
         """
         try:
             # Essayer de trouver le tenant existant
@@ -149,16 +150,19 @@ class HeaderTenantMiddleware:
             return tenant
             
         except Client.DoesNotExist:
-            # Le tenant n'existe pas, le créer automatiquement
+            # Le tenant n'existe pas, tenter de le créer
             logger.info(f"Création automatique du tenant {tenant_uuid}")
-            return self._create_new_tenant(tenant_uuid, schema_name, tenant_name)
+            try:
+                return self._create_new_tenant(tenant_uuid, schema_name, tenant_name)
+            except IntegrityError:
+                # Race condition - le tenant a été créé entre temps par un autre thread
+                logger.info(f"Tenant {tenant_uuid} créé par un autre thread, récupération...")
+                return Client.objects.get(tenant_uuid=tenant_uuid)
     
     def _create_new_tenant(self, tenant_uuid, schema_name, tenant_name):
         """
         Crée un nouveau tenant avec son schéma et effectue les migrations.
         """
-        from django.db import transaction
-        
         # Utiliser une transaction atomique pour éviter les conflits
         with transaction.atomic():
             # Créer le tenant (auto_create_schema=True va créer le schéma)
@@ -186,14 +190,14 @@ class HeaderTenantMiddleware:
         Exécute les migrations pour le schéma du tenant.
         """
         try:
-            with schema_context(tenant.schema_name):
-                # Utiliser la commande de migration de django-tenants
-                migrate_command = MigrateCommand()
-                migrate_command.execute_from_command_line([
-                    'migrate_schemas', 
-                    '--tenant'
-                ])
-                logger.info(f"Migrations exécutées pour le tenant {tenant.name}")
+            # Utiliser call_command qui gère automatiquement tous les paramètres
+            call_command(
+                'migrate_schemas',
+                schema_name=tenant.schema_name,
+                verbosity=0,  # Réduire le bruit dans les logs
+                interactive=False
+            )
+            logger.info(f"Migrations exécutées pour le tenant {tenant.name}")
                 
         except Exception as e:
             logger.error(f"Erreur lors des migrations pour {tenant.name}: {str(e)}")
