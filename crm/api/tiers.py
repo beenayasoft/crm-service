@@ -70,7 +70,55 @@ class TiersViewSet(viewsets.ModelViewSet):
         return TiersListSerializer
 
     def get_queryset(self):
-        return Tiers.objects.filter(is_deleted=False)
+        """
+        QuerySet optimisé avec prefetch pour éviter N+1 queries
+        """
+        return Tiers.objects.filter(is_deleted=False).select_related().prefetch_related(
+            'contacts',
+            'adresses', 
+            'activites',
+            'opportunities'
+        )
+
+    def list(self, request, *args, **kwargs):
+        """Override du list standard avec instrumentation de performance"""
+        import time
+        
+        # 🎯 AUDIT - Start timing
+        start_time = time.time()
+        logger.info("[CRM LATENCY AUDIT] Tiers list START")
+        
+        # Phase 1: Query principale
+        query_start = time.time()
+        queryset = self.filter_queryset(self.get_queryset())
+        query_time = time.time()
+        logger.info(f"[CRM LATENCY AUDIT] Tiers query: {(query_time - query_start)*1000:.2f}ms")
+        
+        # Phase 2: Pagination
+        page_start = time.time()
+        page = self.paginate_queryset(queryset)
+        page_time = time.time()
+        logger.info(f"[CRM LATENCY AUDIT] Pagination: {(page_time - page_start)*1000:.2f}ms")
+        
+        # Phase 3: Sérialisation
+        serialization_start = time.time()
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            serialized_data = serializer.data
+            result = self.get_paginated_response(serialized_data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            serialized_data = serializer.data
+            result = Response(serialized_data)
+        
+        serialization_time = time.time()
+        logger.info(f"[CRM LATENCY AUDIT] Serialization: {(serialization_time - serialization_start)*1000:.2f}ms")
+        
+        # Total
+        total_time = (time.time() - start_time) * 1000
+        logger.info(f"[CRM LATENCY AUDIT] TOTAL LIST ENDPOINT: {total_time:.2f}ms")
+        
+        return result
 
     def perform_create(self, serializer):
         """Actions à effectuer après création d'un tier"""
@@ -125,18 +173,35 @@ class TiersViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def frontend_format(self, request):
         """Retourne la liste des tiers dans un format optimisé pour le frontend"""
+        import time
+        
         try:
+            # 🎯 AUDIT - Start timing
+            start_time = time.time()
+            logger.info("[CRM LATENCY AUDIT] Frontend format START")
+            
             cache_key = self._get_cache_key('frontend_format', **request.GET.dict())
             cached_data = cache.get(cache_key)
             
             if cached_data:
-                # return Response(cached_data)
-                pass
+                logger.info(f"[CRM LATENCY AUDIT] Cache HIT: {(time.time() - start_time)*1000:.2f}ms")
+                return Response(cached_data)
                 
-            queryset = self.filter_queryset(self.get_queryset())
+            # Phase 1: Query optimisée (sans prefetch lourd pour le frontend)
+            query_start = time.time()
+            queryset = self.filter_queryset(
+                Tiers.objects.filter(is_deleted=False).only(
+                    'id', 'nom', 'type', 'relation', 'siret', 'created_at'
+                )
+            )
+            query_time = time.time()
+            logger.info(f"[CRM LATENCY AUDIT] Frontend query: {(query_time - query_start)*1000:.2f}ms")
             
             # Utiliser la pagination Django REST
             page = self.paginate_queryset(queryset)
+            
+            # Phase 2: Sérialisation
+            serialization_start = time.time()
             
             if page is not None:
                 # Format optimisé pour les selects du frontend
@@ -153,11 +218,17 @@ class TiersViewSet(viewsets.ModelViewSet):
                         'created_at': tier.created_at
                     })
                 
+                serialization_time = time.time()
+                logger.info(f"[CRM LATENCY AUDIT] Serialization ({len(formatted_data)} items): {(serialization_time - serialization_start)*1000:.2f}ms")
+                
                 # Retourner avec pagination
                 paginated_response = self.get_paginated_response(formatted_data)
                 
-                # Mettre en cache pour 30 secondes
-                cache.set(cache_key, paginated_response.data, 30)
+                # Mettre en cache pour 2 minutes (plus long que 30s)
+                cache.set(cache_key, paginated_response.data, 120)
+                
+                total_time = (time.time() - start_time) * 1000
+                logger.info(f"[CRM LATENCY AUDIT] TOTAL FRONTEND FORMAT: {total_time:.2f}ms")
                 
                 return paginated_response
             

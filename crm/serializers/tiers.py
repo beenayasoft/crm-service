@@ -55,8 +55,8 @@ class TiersListSerializer(serializers.ModelSerializer):
     """Sérialiseur optimisé pour les listes de tiers"""
     type_display = serializers.CharField(source='get_type_display', read_only=True)
     relation_display = serializers.CharField(source='get_relation_display', read_only=True)
-    contacts_count = serializers.IntegerField(source='contacts.count', read_only=True)
-    opportunities_count = serializers.IntegerField(source='opportunities.count', read_only=True)
+    contacts_count = serializers.SerializerMethodField()
+    opportunities_count = serializers.SerializerMethodField()
     adresse_facturation = serializers.SerializerMethodField()
 
     class Meta:
@@ -68,12 +68,48 @@ class TiersListSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at']
 
+    def get_contacts_count(self, obj):
+        """
+        Compte optimisé des contacts utilisant les données préchargées
+        """
+        # Vérifier si les contacts sont préchargés
+        if hasattr(obj, '_prefetched_objects_cache') and 'contacts' in obj._prefetched_objects_cache:
+            # Utiliser les données préchargées (0 requête DB)
+            return len(obj._prefetched_objects_cache['contacts'])
+        else:
+            # Fallback: comportement original (1 requête DB)
+            return obj.contacts.count()
+    
+    def get_opportunities_count(self, obj):
+        """
+        Compte optimisé des opportunités utilisant les données préchargées
+        """
+        # Vérifier si les opportunités sont préchargées
+        if hasattr(obj, '_prefetched_objects_cache') and 'opportunities' in obj._prefetched_objects_cache:
+            # Utiliser les données préchargées (0 requête DB)
+            return len(obj._prefetched_objects_cache['opportunities'])
+        else:
+            # Fallback: comportement original (1 requête DB)
+            return obj.opportunities.count()
+
     def get_adresse_facturation(self, obj):
-        """Récupère l'adresse de facturation si elle existe"""
-        adresse = obj.adresses.filter(is_facturation=True).first()
-        if adresse:
-            return AdresseListSerializer(adresse).data
-        return None
+        """
+        Récupère l'adresse de facturation optimisée avec les données préchargées
+        """
+        # Vérifier si les adresses sont préchargées
+        if hasattr(obj, '_prefetched_objects_cache') and 'adresses' in obj._prefetched_objects_cache:
+            # Utiliser les données préchargées (0 requête DB)
+            adresses = obj._prefetched_objects_cache['adresses']
+            for adresse in adresses:
+                if adresse.is_facturation:
+                    return AdresseListSerializer(adresse).data
+            return None
+        else:
+            # Fallback: comportement original (1 requête DB)
+            adresse = obj.adresses.filter(is_facturation=True).first()
+            if adresse:
+                return AdresseListSerializer(adresse).data
+            return None
 
 class TiersDetailSerializer(serializers.ModelSerializer):
     """Sérialiseur complet pour les détails d'un tier"""
@@ -90,17 +126,37 @@ class TiersDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at', 'deleted_at']
 
     def get_opportunities_stats(self, obj):
-        """Calcule les statistiques des opportunités"""
-        opportunities = obj.opportunities.all()
-        total_amount = sum(opp.estimated_amount or 0 for opp in opportunities)
-        weighted_amount = sum(opp.weighted_amount or 0 for opp in opportunities)
+        """
+        Calcule les statistiques des opportunités avec données préchargées
+        """
+        # Vérifier si les opportunités sont préchargées
+        if hasattr(obj, '_prefetched_objects_cache') and 'opportunities' in obj._prefetched_objects_cache:
+            # Utiliser les données préchargées (0 requête DB)
+            opportunities = obj._prefetched_objects_cache['opportunities']
+        else:
+            # Fallback: comportement original (1 requête DB)
+            opportunities = obj.opportunities.all()
+        
+        # Calculs optimisés sur les données en mémoire
+        total_amount = 0
+        weighted_amount = 0
+        won_count = 0
+        active_count = 0
+        
+        for opp in opportunities:
+            total_amount += opp.estimated_amount or 0
+            weighted_amount += opp.weighted_amount or 0
+            if opp.stage == 'won':
+                won_count += 1
+            elif opp.stage not in ['won', 'lost']:
+                active_count += 1
         
         return {
-            'count': opportunities.count(),
+            'count': len(opportunities),
             'total_amount': total_amount,
             'weighted_amount': weighted_amount,
-            'won_count': opportunities.filter(stage='won').count(),
-            'active_count': opportunities.exclude(stage__in=['won', 'lost']).count(),
+            'won_count': won_count,
+            'active_count': active_count,
         }
 
 class TiersCreateSerializer(serializers.ModelSerializer):
