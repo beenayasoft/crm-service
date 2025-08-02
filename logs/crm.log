@@ -997,3 +997,38 @@ INFO 2025-07-29 10:53:54,340 tiers 30812 37428 Récupération vue_360 pour le tier
 INFO 2025-07-29 10:53:54,400 tiers 30812 37428 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
 INFO 2025-07-29 10:53:55,178 tiers 30812 11696 Récupération vue_360 pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
 INFO 2025-07-29 10:53:55,227 tiers 30812 11696 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
+INFO 2025-08-01 16:26:14,278 tiers 4192 25064 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-01 16:26:14,281 tiers 4192 25064 Tier créé avec succès: 92f69214-61b3-43c8-88d5-0651f209219c - jean olivier
+INFO 2025-08-01 16:26:22,145 tiers 4192 24580 Récupération vue_360 pour le tier 92f69214-61b3-43c8-88d5-0651f209219c
+INFO 2025-08-01 16:26:22,152 tiers 4192 12936 Récupération vue_360 pour le tier 92f69214-61b3-43c8-88d5-0651f209219c
+INFO 2025-08-01 16:26:22,912 tiers 4192 24580 Vue_360 récupérée avec succès pour le tier 92f69214-61b3-43c8-88d5-0651f209219c
+INFO 2025-08-01 16:26:22,916 tiers 4192 12936 Vue_360 récupérée avec succès pour le tier 92f69214-61b3-43c8-88d5-0651f209219c
+INFO 2025-08-01 16:34:07,237 tiers 4192 23964 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-01 16:34:07,240 tiers 4192 23964 Tier créé avec succès: 7bc183f1-cd75-49be-9fff-6053e0be3c52 - le soir moulot
+INFO 2025-08-01 16:34:12,393 tiers 4192 2756 Récupération vue_360 pour le tier 7bc183f1-cd75-49be-9fff-6053e0be3c52
+INFO 2025-08-01 16:34:12,464 tiers 4192 26232 Récupération vue_360 pour le tier 7bc183f1-cd75-49be-9fff-6053e0be3c52
+INFO 2025-08-01 16:34:13,015 tiers 4192 2756 Vue_360 récupérée avec succès pour le tier 7bc183f1-cd75-49be-9fff-6053e0be3c52
+INFO 2025-08-01 16:34:13,197 tiers 4192 26232 Vue_360 récupérée avec succès pour le tier 7bc183f1-cd75-49be-9fff-6053e0be3c52
+INFO 2025-08-01 16:41:34,438 opportunities 4192 20212 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-01 17:18:31,323 tiers 4192 18332 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-01 17:18:31,329 tiers 4192 18332 Tier créé avec succès: e4124af5-f727-450c-aaf9-dc2769406dba - aron
+INFO 2025-08-01 17:18:46,238 tiers 4192 7224 Récupération vue_360 pour le tier e4124af5-f727-450c-aaf9-dc2769406dba
+INFO 2025-08-01 17:18:46,329 tiers 4192 24360 Récupération vue_360 pour le tier e4124af5-f727-450c-aaf9-dc2769406dba
+INFO 2025-08-01 17:18:46,990 tiers 4192 7224 Vue_360 récupérée avec succès pour le tier e4124af5-f727-450c-aaf9-dc2769406dba
+INFO 2025-08-01 17:18:47,221 tiers 4192 24360 Vue_360 récupérée avec succès pour le tier e4124af5-f727-450c-aaf9-dc2769406dba
+INFO 2025-08-02 12:49:12,222 tiers 7628 24548 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-02 12:49:12,231 tiers 7628 24548 Tier créé avec succès: bc560762-b969-4e57-bd4f-7f6302c1f639 - oliiver aron
+INFO 2025-08-02 12:49:29,733 tiers 7628 14004 Récupération vue_360 pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 12:49:29,910 tiers 7628 20912 Récupération vue_360 pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 12:49:30,639 tiers 7628 14004 Vue_360 récupérée avec succès pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 12:49:30,776 tiers 7628 20912 Vue_360 récupérée avec succès pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 13:05:48,501 tiers 7628 22932 Récupération vue_360 pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 13:05:48,616 tiers 7628 18192 Récupération vue_360 pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 13:05:49,351 tiers 7628 22932 Vue_360 récupérée avec succès pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 13:05:49,388 tiers 7628 18192 Vue_360 récupérée avec succès pour le tier bc560762-b969-4e57-bd4f-7f6302c1f639
+INFO 2025-08-02 16:08:12,954 tiers 7628 21152 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-08-02 16:08:12,968 tiers 7628 21152 Tier créé avec succès: 98d7c017-12fe-4767-a1ac-b8f02ec03d88 - kk aron
+INFO 2025-08-02 16:08:28,448 tiers 7628 24100 Récupération vue_360 pour le tier 98d7c017-12fe-4767-a1ac-b8f02ec03d88
+INFO 2025-08-02 16:08:28,632 tiers 7628 8444 Récupération vue_360 pour le tier 98d7c017-12fe-4767-a1ac-b8f02ec03d88
+INFO 2025-08-02 16:08:29,262 tiers 7628 24100 Vue_360 récupérée avec succès pour le tier 98d7c017-12fe-4767-a1ac-b8f02ec03d88
+INFO 2025-08-02 16:08:29,540 tiers 7628 8444 Vue_360 récupérée avec succès pour le tier 98d7c017-12fe-4767-a1ac-b8f02ec03d88
