@@ -997,3 +997,18 @@ INFO 2025-07-29 10:53:54,340 tiers 30812 37428 Récupération vue_360 pour le tier
 INFO 2025-07-29 10:53:54,400 tiers 30812 37428 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
 INFO 2025-07-29 10:53:55,178 tiers 30812 11696 Récupération vue_360 pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
 INFO 2025-07-29 10:53:55,227 tiers 30812 11696 Vue_360 récupérée avec succès pour le tier d059b9c3-5ddf-4b81-9c88-fdf9f1a97e21
+INFO 2025-07-30 19:29:42,686 tiers 10012 17452 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
+INFO 2025-07-30 19:29:42,718 tiers 10012 17452 Tier créé avec succès: ecb988ef-1683-4e9a-998b-e5e6a5b89354 - Elvis
+INFO 2025-07-30 19:29:43,901 tiers 10012 40984 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:29:44,742 tiers 10012 40984 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:29:45,842 tiers 10012 36148 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:29:47,294 tiers 10012 36148 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:30:02,062 tiers 10012 34680 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:30:02,643 tiers 10012 34680 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:30:03,486 tiers 10012 38748 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-07-30 19:30:04,098 tiers 10012 38748 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-08-01 23:29:20,909 tiers 43724 46444 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-08-01 23:29:21,504 tiers 43724 46444 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-08-01 23:29:22,499 tiers 43724 25676 Récupération vue_360 pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-08-01 23:29:23,084 tiers 43724 25676 Vue_360 récupérée avec succès pour le tier ecb988ef-1683-4e9a-998b-e5e6a5b89354
+INFO 2025-08-02 02:24:03,114 opportunities 43724 48504 Cache invalidé pour tenant cf22f06c-4134-4bf0-9fbd-8a00c04a6c8f
