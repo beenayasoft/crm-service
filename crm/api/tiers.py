@@ -9,9 +9,6 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.cache import cache
-import hashlib
-import json
 
 from ..models import Tiers, Contact, Adresse, ActiviteTiers
 from ..serializers import (
@@ -38,24 +35,7 @@ class TiersViewSet(viewsets.ModelViewSet):
     ordering_fields = ['nom', 'created_at', 'updated_at']
     ordering = ['-created_at']
 
-    def _get_cache_key(self, action, **kwargs):
-        """Génère une clé de cache unique"""
-        tenant_id = getattr(self.request, 'tenant_id', 'public')
-        params_hash = hashlib.md5(
-            json.dumps(kwargs, sort_keys=True, default=str).encode()
-        ).hexdigest()[:8]
-        return f"tiers_{action}_{tenant_id}_{params_hash}"
 
-    def _invalidate_cache(self):
-        """Invalide le cache pour ce tenant"""
-        tenant_id = getattr(self.request, 'tenant_id', 'public')
-        common_keys = [
-            f"tiers_list_{tenant_id}_",
-            f"tiers_stats_{tenant_id}_",
-            f"tiers_frontend_{tenant_id}_"
-        ]
-        cache.delete_many(common_keys)
-        logger.info(f"Cache invalidé pour tenant {tenant_id}")
 
     def get_serializer_class(self):
         """Sélectionne le serializer approprié selon l'action"""
@@ -70,49 +50,75 @@ class TiersViewSet(viewsets.ModelViewSet):
         return TiersListSerializer
 
     def get_queryset(self):
-        return Tiers.objects.filter(is_deleted=False)
+        queryset = Tiers.objects.filter(is_deleted=False)
+        logger.info(f"=== GET_QUERYSET DEBUG ===")
+        logger.info(f"Queryset count: {queryset.count()}")
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        """Override list pour ajouter des logs de débogage"""
+        logger.info(f"=== DEBUG LIST ENDPOINT ===")
+        logger.info(f"Tenant ID: {getattr(request, 'tenant_id', 'None')}")
+        
+        queryset = self.filter_queryset(self.get_queryset())
+        logger.info(f"Filtered queryset count: {queryset.count()}")
+        logger.info(f"Query parameters: {dict(request.GET)}")
+        
+        # Lister quelques tiers pour débugger
+        for tier in queryset[:5]:  # Limité à 5 pour éviter trop de logs
+            logger.info(f"Tier dans list: {tier.id} - {tier.nom} - relation: {tier.relation} - deleted: {tier.is_deleted}")
+        
+        logger.info(f"=== FIN DEBUG LIST ENDPOINT ===")
+        
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         """Actions à effectuer après création d'un tier"""
         instance = serializer.save()
-        self._invalidate_cache()
         logger.info(f"Tier créé avec succès: {instance.id} - {instance.nom}")
 
     def perform_update(self, serializer):
         """Actions à effectuer après mise à jour d'un tier"""
         instance = serializer.save()
-        self._invalidate_cache()
         logger.info(f"Tier mis à jour: {instance.id} - {instance.nom}")
 
     def perform_destroy(self, instance):
         """Soft delete d'un tier"""
         instance.delete()  # Utilise la méthode soft delete du modèle
-        self._invalidate_cache()
         logger.info(f"Tier archivé: {instance.id} - {instance.nom}")
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Retourne les statistiques des tiers"""
         try:
-            cache_key = self._get_cache_key('stats')
-            cached_stats = cache.get(cache_key)
+            # Utiliser EXACTEMENT le même queryset filtré que l'endpoint list
+            # Cela applique tous les filtres DRF (filterset_fields, search, etc.)
+            base_queryset = self.get_queryset()
+            filtered_queryset = self.filter_queryset(base_queryset)
             
-            if cached_stats:
-                # return Response(cached_stats)
-                pass
-                
-            stats = Tiers.objects.aggregate(
-                total=Count('id'),
-                prospects=Count('id', filter=Q(relation='prospect')),
-                clients=Count('id', filter=Q(relation='client')),
-                fournisseurs=Count('id', filter=Q(relation='fournisseur')),
-                sous_traitants=Count('id', filter=Q(relation='sous_traitant')),
-                opportunities_total=Count('opportunities'),
+            # DEBUG: Logs pour comparer avec l'endpoint list
+            logger.info(f"=== DEBUG STATS ENDPOINT ===")
+            logger.info(f"Tenant ID: {getattr(request, 'tenant_id', 'None')}")
+            logger.info(f"Base queryset count: {base_queryset.count()}")
+            logger.info(f"Filtered queryset count: {filtered_queryset.count()}")
+            logger.info(f"Query parameters: {dict(request.GET)}")
+            
+            # Lister tous les tiers dans le queryset filtré pour débugger
+            for tier in filtered_queryset:
+                logger.info(f"Tier dans stats: {tier.id} - {tier.nom} - relation: {tier.relation} - deleted: {tier.is_deleted}")
+            
+            stats = filtered_queryset.aggregate(
+                total=Count('id', distinct=True),
+                prospects=Count('id', filter=Q(relation='prospect'), distinct=True),
+                clients=Count('id', filter=Q(relation='client'), distinct=True),
+                fournisseurs=Count('id', filter=Q(relation='fournisseur'), distinct=True),
+                sous_traitants=Count('id', filter=Q(relation='sous_traitant'), distinct=True),
+                opportunities_total=Count('opportunities', distinct=True),
                 opportunities_amount=Sum('opportunities__estimated_amount')
             )
             
-            # Mettre en cache pour 30 secondes
-            cache.set(cache_key, stats, 30)
+            logger.info(f"Stats calculées: {stats}")
+            logger.info(f"=== FIN DEBUG STATS ENDPOINT ===")
             
             return Response(stats)
         except Exception as e:
@@ -126,12 +132,6 @@ class TiersViewSet(viewsets.ModelViewSet):
     def frontend_format(self, request):
         """Retourne la liste des tiers dans un format optimisé pour le frontend"""
         try:
-            cache_key = self._get_cache_key('frontend_format', **request.GET.dict())
-            cached_data = cache.get(cache_key)
-            
-            if cached_data:
-                # return Response(cached_data)
-                pass
                 
             queryset = self.filter_queryset(self.get_queryset())
             
@@ -156,9 +156,6 @@ class TiersViewSet(viewsets.ModelViewSet):
                 # Retourner avec pagination
                 paginated_response = self.get_paginated_response(formatted_data)
                 
-                # Mettre en cache pour 30 secondes
-                cache.set(cache_key, paginated_response.data, 30)
-                
                 return paginated_response
             
             # Si pas de pagination, format simple
@@ -181,9 +178,6 @@ class TiersViewSet(viewsets.ModelViewSet):
                 'previous': None,
                 'results': formatted_data
             }
-            
-            # Mettre en cache pour 30 secondes
-            cache.set(cache_key, response_data, 30)
             
             return Response(response_data)
         except Exception as e:
@@ -240,7 +234,6 @@ class TiersViewSet(viewsets.ModelViewSet):
         try:
             tier = get_object_or_404(Tiers, pk=pk)
             tier.restore()
-            self._invalidate_cache()
             
             serializer = TiersDetailSerializer(tier)
             return Response(serializer.data)
@@ -267,19 +260,12 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-        self.get_parent_viewset()._invalidate_cache()
 
     def perform_update(self, serializer):
         serializer.save()
-        self.get_parent_viewset()._invalidate_cache()
 
     def perform_destroy(self, instance):
         instance.delete()
-        self.get_parent_viewset()._invalidate_cache()
-
-    def get_parent_viewset(self):
-        """Récupère le viewset parent (TiersViewSet)"""
-        return self.request.parser_context['view'].parent
 
 class AdresseViewSet(viewsets.ModelViewSet):
     """ViewSet pour la gestion des adresses"""
@@ -297,19 +283,12 @@ class AdresseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-        self.get_parent_viewset()._invalidate_cache()
 
     def perform_update(self, serializer):
         serializer.save()
-        self.get_parent_viewset()._invalidate_cache()
 
     def perform_destroy(self, instance):
         instance.delete()
-        self.get_parent_viewset()._invalidate_cache()
-
-    def get_parent_viewset(self):
-        """Récupère le viewset parent (TiersViewSet)"""
-        return self.request.parser_context['view'].parent
 
 class ActiviteTiersViewSet(viewsets.ModelViewSet):
     """ViewSet pour la gestion des activités"""

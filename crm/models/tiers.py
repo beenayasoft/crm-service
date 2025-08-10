@@ -159,6 +159,11 @@ class Tiers(models.Model):
             self.save()
             return True
         return False
+    
+    def get_type_list(self):
+        """Retourne les types du tier sous forme de liste pour compatibilité frontend"""
+        # Le modèle actuel n'a qu'un seul type, mais on retourne une liste pour compatibilité
+        return [self.relation]
 
 class Adresse(models.Model):
     """

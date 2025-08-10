@@ -169,6 +169,13 @@ REST_FRAMEWORK = {
 API_PORT = config('API_PORT', default=8003, cast=int)
 API_HOST = config('API_HOST', default='0.0.0.0')
 
+# SOA Configuration pour ServiceClient
+SERVICE_NAME = 'crm'
+SERVICE_PORT = API_PORT
+API_GATEWAY_URL = config('API_GATEWAY_URL', default='http://localhost:8000')
+SERVICE_HEALTH_ENDPOINT = '/health/'
+SERVICE_ROUTES = ['/api/crm/', '/api/tiers/', '/api/opportunities/']
+
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
@@ -243,6 +250,9 @@ if not DEBUG:
 
 # Configuration tenant
 TENANT_SERVICE_URL = config('TENANT_SERVICE_URL', default='http://localhost:8001')
+
+# Configuration des services SOA
+DOCUMENTS_SERVICE_URL = config('DOCUMENTS_SERVICE_URL', default='http://localhost:8004')
 
 # Configuration du cache local
 CACHES = {

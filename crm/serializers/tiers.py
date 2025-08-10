@@ -29,7 +29,7 @@ class AdresseListSerializer(serializers.ModelSerializer):
     """Sérialiseur optimisé pour les listes d'adresses"""
     class Meta:
         model = Adresse
-        fields = ['id', 'libelle', 'ville', 'code_postal', 'is_facturation']
+        fields = ['id', 'libelle', 'rue', 'ville', 'code_postal', 'pays', 'is_facturation']
 
 class AdresseDetailSerializer(serializers.ModelSerializer):
     """Sérialiseur complet pour les détails d'une adresse"""
@@ -58,12 +58,16 @@ class TiersListSerializer(serializers.ModelSerializer):
     contacts_count = serializers.IntegerField(source='contacts.count', read_only=True)
     opportunities_count = serializers.IntegerField(source='opportunities.count', read_only=True)
     adresse_facturation = serializers.SerializerMethodField()
+    contact_principal = serializers.SerializerMethodField() # ✅ AJOUT : Contact principal
+    contact_principal_email = serializers.SerializerMethodField() # ✅ AJOUT : Email du contact principal
+    contact_principal_telephone = serializers.SerializerMethodField() # ✅ AJOUT : Téléphone du contact principal
 
     class Meta:
         model = Tiers
         fields = [
             'id', 'nom', 'type', 'type_display', 'relation', 'relation_display',
             'siret', 'contacts_count', 'opportunities_count', 'adresse_facturation',
+            'contact_principal', 'contact_principal_email', 'contact_principal_telephone',
             'is_deleted', 'created_at'
         ]
         read_only_fields = ['created_at']
@@ -73,6 +77,39 @@ class TiersListSerializer(serializers.ModelSerializer):
         adresse = obj.adresses.filter(is_facturation=True).first()
         if adresse:
             return AdresseListSerializer(adresse).data
+        return None
+
+    def get_contact_principal(self, obj):
+        """Récupère le contact principal pour devis"""
+        contact = obj.contacts.filter(is_contact_principal_devis=True).first()
+        if contact:
+            return contact.nom_complet
+        # Fallback: premier contact s'il existe
+        premier_contact = obj.contacts.first()
+        if premier_contact:
+            return premier_contact.nom_complet
+        return None
+    
+    def get_contact_principal_email(self, obj):
+        """Récupère l'email du contact principal"""
+        contact = obj.contacts.filter(is_contact_principal_devis=True).first()
+        if contact and contact.email:
+            return contact.email
+        # Fallback: premier contact avec email s'il existe
+        premier_contact = obj.contacts.filter(email__isnull=False, email__gt='').first()
+        if premier_contact:
+            return premier_contact.email
+        return None
+    
+    def get_contact_principal_telephone(self, obj):
+        """Récupère le téléphone du contact principal"""
+        contact = obj.contacts.filter(is_contact_principal_devis=True).first()
+        if contact and contact.telephone:
+            return contact.telephone
+        # Fallback: premier contact avec téléphone s'il existe
+        premier_contact = obj.contacts.filter(telephone__isnull=False, telephone__gt='').first()
+        if premier_contact:
+            return premier_contact.telephone
         return None
 
 class TiersDetailSerializer(serializers.ModelSerializer):

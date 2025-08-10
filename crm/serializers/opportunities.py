@@ -12,12 +12,19 @@ from ..models import (
 from .tiers import TiersListSerializer
 
 class OpportunityListSerializer(serializers.ModelSerializer):
-    """Sérialiseur optimisé pour les listes d'opportunités"""
-    stage_display = serializers.CharField(source='get_stage_display', read_only=True)
-    source_display = serializers.CharField(source='get_source_display', read_only=True)
-    tier_nom = serializers.CharField(source='tier.nom', read_only=True)
-    days_in_pipeline = serializers.IntegerField(read_only=True)
-    weighted_amount = serializers.DecimalField(
+    """Sérialiseur optimisé pour les listes d'opportunités - Format camelCase unifié"""
+    
+    # Format unifié camelCase
+    tierId = serializers.CharField(source='tier.id', read_only=True)
+    tierName = serializers.CharField(source='tier.nom', read_only=True)
+    estimatedAmount = serializers.DecimalField(source='estimated_amount', max_digits=12, decimal_places=2, read_only=True)
+    expectedCloseDate = serializers.DateField(source='expected_close_date', read_only=True)
+    assignedTo = serializers.CharField(source='assigned_to', read_only=True)
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    closedAt = serializers.DateTimeField(source='closed_at', read_only=True)
+    daysInPipeline = serializers.IntegerField(source='days_in_pipeline', read_only=True)
+    weightedAmount = serializers.DecimalField(
+        source='weighted_amount',
         max_digits=12, 
         decimal_places=2, 
         read_only=True
@@ -26,21 +33,33 @@ class OpportunityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Opportunity
         fields = [
-            'id', 'name', 'tier_nom', 'stage', 'stage_display',
-            'estimated_amount', 'probability', 'weighted_amount',
-            'expected_close_date', 'source', 'source_display',
-            'days_in_pipeline', 'created_at', 'closed_at'
+            'id', 'name', 'tierId', 'tierName', 'stage', 'estimatedAmount', 
+            'probability', 'weightedAmount', 'expectedCloseDate', 'source',
+            'assignedTo', 'daysInPipeline', 'createdAt', 'closedAt'
         ]
-        read_only_fields = ['created_at', 'closed_at']
+        read_only_fields = ['id', 'probability', 'createdAt', 'closedAt', 'daysInPipeline', 'weightedAmount']
 
 class OpportunityDetailSerializer(serializers.ModelSerializer):
-    """Sérialiseur complet pour les détails d'une opportunité"""
-    stage_display = serializers.CharField(source='get_stage_display', read_only=True)
-    source_display = serializers.CharField(source='get_source_display', read_only=True)
-    loss_reason_display = serializers.CharField(source='get_loss_reason_display', read_only=True)
-    tier = TiersListSerializer(read_only=True)
-    days_in_pipeline = serializers.IntegerField(read_only=True)
-    weighted_amount = serializers.DecimalField(
+    """Sérialiseur complet pour les détails d'une opportunité - Format camelCase unifié"""
+    
+    # Champs formatés camelCase
+    tierId = serializers.CharField(source='tier.id', read_only=True)
+    tierName = serializers.CharField(source='tier.nom', read_only=True)
+    tierType = serializers.SerializerMethodField()
+    estimatedAmount = serializers.DecimalField(source='estimated_amount', max_digits=12, decimal_places=2, read_only=True)
+    expectedCloseDate = serializers.DateField(source='expected_close_date', read_only=True)
+    assignedTo = serializers.CharField(source='assigned_to', read_only=True)
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    updatedAt = serializers.DateTimeField(source='updated_at', read_only=True)
+    closedAt = serializers.DateTimeField(source='closed_at', read_only=True)
+    lossReason = serializers.CharField(source='loss_reason', read_only=True)
+    lossDescription = serializers.CharField(source='loss_description', read_only=True)
+    projectId = serializers.CharField(source='project_id', read_only=True)
+    
+    # Champs calculés
+    daysInPipeline = serializers.IntegerField(source='days_in_pipeline', read_only=True)
+    weightedAmount = serializers.DecimalField(
+        source='weighted_amount',
         max_digits=12, 
         decimal_places=2, 
         read_only=True
@@ -48,56 +67,118 @@ class OpportunityDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Opportunity
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at', 'closed_at']
+        fields = [
+            'id', 'name', 'tierId', 'tierName', 'tierType', 'stage', 
+            'estimatedAmount', 'probability', 'expectedCloseDate', 'source',
+            'description', 'assignedTo', 'createdAt', 'updatedAt', 'closedAt',
+            'lossReason', 'lossDescription', 'projectId', 'daysInPipeline', 'weightedAmount'
+        ]
+        read_only_fields = ['id', 'probability', 'createdAt', 'updatedAt', 'closedAt', 'daysInPipeline', 'weightedAmount']
+    
+    def get_tierType(self, obj):
+        """Retourne les types du tier sous forme de liste"""
+        if hasattr(obj.tier, 'get_type_list'):
+            return obj.tier.get_type_list()
+        return []
+    
 
 class OpportunityCreateSerializer(serializers.ModelSerializer):
     """Sérialiseur pour la création d'une opportunité avec validation"""
+    
+    # Format unifié camelCase SEULEMENT
+    tierId = serializers.CharField(source='tier', required=True)
+    estimatedAmount = serializers.DecimalField(
+        source='estimated_amount', 
+        max_digits=12, 
+        decimal_places=2, 
+        required=True
+    )
+    expectedCloseDate = serializers.DateField(
+        source='expected_close_date', 
+        required=True
+    )
+    assignedTo = serializers.CharField(
+        source='assigned_to',
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
+    
     class Meta:
         model = Opportunity
         fields = [
-            'id', 'name', 'tier', 'stage', 'estimated_amount',
-            'probability', 'expected_close_date', 'source',
-            'description', 'assigned_to'
+            'id', 'name', 'tierId', 'stage', 'estimatedAmount',
+            'expectedCloseDate', 'source', 'description', 'assignedTo'
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'probability']
 
-    def validate_estimated_amount(self, value):
+    def validate_estimatedAmount(self, value):
         """Validation du montant estimé"""
         if value <= 0:
             raise serializers.ValidationError(
                 _("Le montant estimé doit être supérieur à 0.")
             )
         return value
-
-    def validate_probability(self, value):
-        """Validation de la probabilité"""
-        if not 0 <= value <= 100:
+    
+    def validate_tierId(self, value):
+        """Validation et résolution du tier"""
+        from ..models import Tiers  # Import depuis models
+        try:
+            tier = Tiers.objects.get(id=value)
+            return tier  # Retourner l'objet Tiers, pas juste l'UUID
+        except Tiers.DoesNotExist:
             raise serializers.ValidationError(
-                _("La probabilité doit être comprise entre 0 et 100.")
+                _("Le tier avec l'ID {} n'existe pas.").format(value)
             )
-        return value
 
     def validate(self, data):
         """Validation globale"""
-        if data.get('stage') == OpportunityStatus.WON and data.get('probability', 100) != 100:
-            data['probability'] = 100
-        elif data.get('stage') == OpportunityStatus.LOST and data.get('probability', 0) != 0:
-            data['probability'] = 0
+        # La probabilité sera gérée automatiquement par le modèle
+        # Pas besoin de la définir ici
         return data
 
 class OpportunityUpdateSerializer(serializers.ModelSerializer):
-    """Sérialiseur pour la mise à jour d'une opportunité"""
+    """Sérialiseur pour la mise à jour d'une opportunité - Format camelCase unifié"""
+    
+    # Format unifié camelCase SEULEMENT
+    estimatedAmount = serializers.DecimalField(
+        source='estimated_amount', 
+        max_digits=12, 
+        decimal_places=2, 
+        required=False
+    )
+    expectedCloseDate = serializers.DateField(
+        source='expected_close_date', 
+        required=False
+    )
+    assignedTo = serializers.CharField(
+        source='assigned_to',
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
+    lossReason = serializers.CharField(
+        source='loss_reason',
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
+    lossDescription = serializers.CharField(
+        source='loss_description',
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
+    
     class Meta:
         model = Opportunity
         fields = [
-            'name', 'stage', 'estimated_amount', 'probability',
-            'expected_close_date', 'source', 'description',
-            'assigned_to'
+            'name', 'stage', 'estimatedAmount', 'expectedCloseDate', 
+            'source', 'description', 'assignedTo', 'lossReason', 'lossDescription'
         ]
-        read_only_fields = ['created_at', 'updated_at', 'closed_at']
+        read_only_fields = ['probability']
 
-    def validate_estimated_amount(self, value):
+    def validate_estimatedAmount(self, value):
         """Validation du montant estimé"""
         if value <= 0:
             raise serializers.ValidationError(
@@ -106,30 +187,9 @@ class OpportunityUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        """Validation globale avec gestion des statuts"""
-        if 'stage' in data:
-            current_stage = self.instance.stage if self.instance else None
-            new_stage = data['stage']
-            
-            # Si passage à gagné
-            if new_stage == OpportunityStatus.WON:
-                data['probability'] = 100
-                if self.instance.tier.is_prospect:
-                    self.instance.tier.convert_to_client()
-            
-            # Si passage à perdu
-            elif new_stage == OpportunityStatus.LOST:
-                data['probability'] = 0
-                
-            # Si retour en pipeline depuis gagné/perdu
-            elif current_stage in [OpportunityStatus.WON, OpportunityStatus.LOST]:
-                if new_stage == OpportunityStatus.NEW:
-                    data['probability'] = 10
-                elif new_stage == OpportunityStatus.NEEDS_ANALYSIS:
-                    data['probability'] = 30
-                elif new_stage == OpportunityStatus.NEGOTIATION:
-                    data['probability'] = 60
-        
+        """Validation globale simplifiée"""
+        # La gestion de la probabilité se fait automatiquement dans le modèle
+        # Pas besoin de la gérer ici pour éviter les conflits
         return data
 
 class OpportunityStageUpdateSerializer(serializers.ModelSerializer):
@@ -138,7 +198,7 @@ class OpportunityStageUpdateSerializer(serializers.ModelSerializer):
         choices=LossReason.choices, 
         required=False
     )
-    loss_description = serializers.CharField(required=False)
+    loss_description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Opportunity

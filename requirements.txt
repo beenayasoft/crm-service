@@ -10,3 +10,4 @@ django-tenants>=3.6.1
 
 # Autres dépendances
 requests>=2.31.0
+httpx>=0.24.0

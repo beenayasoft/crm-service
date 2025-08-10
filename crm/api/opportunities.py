@@ -2,15 +2,15 @@
 API pour la gestion des opportunités
 """
 import logging
+import requests
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, Sum, Avg, Q
-import hashlib
-import json
+from django.conf import settings
 
 from ..models import Opportunity, OpportunityStatus
 from ..serializers import (
@@ -32,24 +32,6 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'expected_close_date', 'estimated_amount', 'probability']
     ordering = ['-created_at']
 
-    def _get_cache_key(self, action, **kwargs):
-        """Génère une clé de cache unique"""
-        tenant_id = getattr(self.request, 'tenant_id', 'public')
-        params_hash = hashlib.md5(
-            json.dumps(kwargs, sort_keys=True, default=str).encode()
-        ).hexdigest()[:8]
-        return f"opportunities_{action}_{tenant_id}_{params_hash}"
-
-    def _invalidate_cache(self):
-        """Invalide le cache pour ce tenant"""
-        tenant_id = getattr(self.request, 'tenant_id', 'public')
-        common_keys = [
-            f"opportunities_list_{tenant_id}_",
-            f"opportunities_kanban_{tenant_id}_",
-            f"opportunities_stats_{tenant_id}_"
-        ]
-        cache.delete_many(common_keys)
-        logger.info(f"Cache invalidé pour tenant {tenant_id}")
 
     def get_queryset(self):
         """QuerySet optimisé selon l'action"""
@@ -90,50 +72,25 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         return OpportunityDetailSerializer
 
     def list(self, request, *args, **kwargs):
-        """Liste des opportunités avec cache"""
-        cache_key = self._get_cache_key('list',
-            filters=request.GET.dict(),
-            page=request.GET.get('page', 1)
-        )
-        
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            response = Response(cached_data)
-            response['X-Cache-Status'] = 'HIT'
-            return response
-        
-        response = super().list(request, *args, **kwargs)
-        cache.set(cache_key, response.data, 30)
-        response['X-Cache-Status'] = 'MISS'
-        return response
+        """Liste des opportunités"""
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         """Logique métier lors de la création"""
         serializer.save()
-        self._invalidate_cache()
 
     def perform_update(self, serializer):
         """Logique métier lors de la mise à jour"""
         instance = serializer.save()
-        self._invalidate_cache()
         logger.info(f"Opportunité {instance.id} mise à jour - Statut: {instance.stage}")
 
     def perform_destroy(self, instance):
         """Logique métier lors de la suppression"""
         instance.delete()
-        self._invalidate_cache()
 
     @action(detail=False, methods=['get'])
     def kanban(self, request):
-        """Vue spéciale pour l'interface Kanban avec cache"""
-        cache_key = self._get_cache_key('kanban', filters=request.GET.dict())
-        
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            response = Response(cached_data)
-            response['X-Cache-Status'] = 'HIT'
-            return response
-        
+        """Vue spéciale pour l'interface Kanban"""
         opportunities = self.get_queryset()
         
         # Organiser par statut pour le Kanban
@@ -159,10 +116,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 'opportunities': OpportunityListSerializer(stage_opportunities, many=True).data
             }
         
-        cache.set(cache_key, kanban_data, 30)
-        response = Response(kanban_data)
-        response['X-Cache-Status'] = 'MISS'
-        return response
+        return Response(kanban_data)
 
     @action(detail=True, methods=['patch'])
     def update_stage(self, request, pk=None):
@@ -176,11 +130,20 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if not self._validate_stage_transition(opportunity, new_stage):
-            return Response(
-                {"error": "Transition de statut non autorisée"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        try:
+            # Validation de la transition (peut lever ValidationError)
+            # Possibilité de forcer la transition avec le paramètre 'force'
+            force_transition = request.data.get('force', False)
+            self._validate_stage_transition(opportunity, new_stage, force=force_transition)
+        except ValidationError as e:
+            # Retourner l'erreur de validation avec le bon format
+            if isinstance(e.detail, dict):
+                return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"error": str(e.detail)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         serializer = OpportunityStageUpdateSerializer(
             opportunity,
@@ -190,20 +153,99 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         
-        self._invalidate_cache()
         return Response(serializer.data)
 
-    def _validate_stage_transition(self, opportunity, new_stage):
+    def _validate_stage_transition(self, opportunity, new_stage, force=False):
         """Valide si une transition de statut est autorisée"""
         current_stage = opportunity.stage
         
+        # Validations existantes pour les opportunités fermées
         if current_stage == OpportunityStatus.WON:
-            return new_stage == OpportunityStatus.NEGOTIATION
+            if new_stage != OpportunityStatus.NEGOTIATION:
+                raise ValidationError("Une opportunité gagnée ne peut être modifiée qu'en négociation.")
         
         elif current_stage == OpportunityStatus.LOST:
-            return new_stage == OpportunityStatus.NEGOTIATION
+            if new_stage != OpportunityStatus.NEGOTIATION:
+                raise ValidationError("Une opportunité perdue ne peut être modifiée qu'en négociation.")
+        
+        # VALIDATION 1 : Transition vers négociation nécessite un devis envoyé
+        # (sauf si force=True)
+        if new_stage == OpportunityStatus.NEGOTIATION and current_stage != OpportunityStatus.NEGOTIATION:
+            if not force and not self._has_sent_quote(opportunity.id):
+                raise ValidationError({
+                    "detail": "Un devis doit être envoyé avant de passer en négociation.",
+                    "code": "QUOTE_REQUIRED_FOR_NEGOTIATION",
+                    "suggestion": "Créez et envoyez un devis pour cette opportunité avant de la faire passer en négociation."
+                })
+        
+        # VALIDATION 2 : Transition vers "gagnée" nécessite d'être passé par la négociation
+        if new_stage == OpportunityStatus.WON and current_stage != OpportunityStatus.NEGOTIATION:
+            raise ValidationError({
+                "detail": "Une opportunité doit passer par l'étape négociation avant d'être marquée comme gagnée.",
+                "code": "NEGOTIATION_REQUIRED_FOR_WON",
+                "suggestion": "Faites d'abord passer cette opportunité en négociation, puis marquez-la comme gagnée."
+            })
         
         return True
+
+    def _has_sent_quote(self, opportunity_id):
+        """Vérifie si cette opportunité a au moins un devis envoyé - SOA 100%"""
+        logger.info(f"🔄 Migration SOA: vérification devis envoyés pour opportunité {opportunity_id} via API Gateway")
+        
+        try:
+            # Import local pour éviter les imports circulaires
+            from ..utils_soa import has_sent_quote_sync
+            
+            # Récupérer le tenant_id depuis la requête
+            tenant_id = getattr(self.request, 'tenant_id', None)
+            
+            # SOA 100% - Communication via API Gateway
+            return has_sent_quote_sync(
+                opportunity_id=str(opportunity_id),
+                tenant_id=tenant_id
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Erreur SOA lors de la vérification des devis pour opportunité {opportunity_id}: {e}")
+            logger.info("🔄 Fallback: tentative avec l'ancienne méthode directe")
+            
+            # Fallback temporaire en cas d'erreur SOA
+            try:
+                # URL du service Documents
+                documents_service_url = getattr(settings, 'DOCUMENTS_SERVICE_URL', 'http://localhost:8004')
+                
+                # Appel direct au service Documents (fallback)
+                response = requests.get(
+                    f"{documents_service_url}/api/quotes/",
+                    params={
+                        'opportunity_id': str(opportunity_id),
+                        'status': 'sent'  # Statut "envoyé"
+                    },
+                    headers={
+                        'X-Tenant-ID': getattr(self.request, 'tenant_id', None),
+                        'Content-Type': 'application/json'
+                    },
+                    timeout=1  # Timeout réduit à 1 seconde
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    # Vérifier s'il y a au moins un devis envoyé
+                    if isinstance(data, dict) and 'results' in data:
+                        return len(data['results']) > 0
+                    elif isinstance(data, list):
+                        return len(data) > 0
+                        
+                return False
+                
+            except (requests.RequestException, requests.Timeout) as fallback_error:
+                logger.warning(f"❌ Erreur fallback lors de la vérification des devis pour l'opportunité {opportunity_id}: {fallback_error}")
+                # En cas d'erreur de communication, on autorise la transition (fail-safe)
+                # pour éviter de bloquer complètement l'application
+            return True
+        except Exception as e:
+            logger.error(f"Erreur inattendue lors de la vérification des devis: {e}")
+            return True
 
     @action(detail=True, methods=['post'])
     def mark_won(self, request, pk=None):
@@ -216,11 +258,18 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if opportunity.stage == OpportunityStatus.LOST:
-            return Response(
-                {"error": "Impossible de marquer une opportunité perdue comme gagnée. Remettez-la d'abord en négociation."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        try:
+            # Utiliser la validation standard pour s'assurer que toutes les règles sont respectées
+            self._validate_stage_transition(opportunity, OpportunityStatus.WON)
+        except ValidationError as e:
+            # Retourner l'erreur de validation avec le bon format
+            if isinstance(e.detail, dict):
+                return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"error": str(e.detail)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         data = {
             'stage': OpportunityStatus.WON,
@@ -253,6 +302,11 @@ class OpportunityViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Debug: Afficher les données reçues
+        logger.info(f"Backend - request.data recu: {request.data}")
+        logger.info(f"Backend - Type de request.data: {type(request.data)}")
+        logger.info(f"Backend - loss_description: {request.data.get('loss_description')} (type: {type(request.data.get('loss_description'))})")
+        
         if not request.data.get('loss_reason'):
             return Response(
                 {"error": "La raison de perte est obligatoire"},
@@ -265,9 +319,18 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             'loss_description': request.data.get('loss_description')
         }
         
+        logger.info(f"Backend - Data prepare pour serializer: {data}")
+        
         serializer = self.get_serializer(opportunity, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        logger.info(f"Backend - Serializer cree, validation en cours...")
+        
+        if not serializer.is_valid():
+            logger.error(f"Backend - Erreurs de validation: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        logger.info(f"Backend - Validation OK, mise a jour en cours...")
+        serializer.save()
+        logger.info(f"Backend - Mise a jour reussie!")
         
         return Response({
             "message": "Opportunité marquée comme perdue",
@@ -276,15 +339,7 @@ class OpportunityViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
-        """Statistiques sur les opportunités avec cache"""
-        cache_key = self._get_cache_key('stats')
-        
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            response = Response(cached_data)
-            response['X-Cache-Status'] = 'HIT'
-            return response
-        
+        """Statistiques sur les opportunités"""
         queryset = self.get_queryset()
         
         # Statistiques globales
@@ -322,8 +377,4 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             'weighted_pipeline': weighted_pipeline
         }
         
-        cache.set(cache_key, stats_data, 10)  # Cache plus court pour les stats
-        
-        response = Response(stats_data)
-        response['X-Cache-Status'] = 'MISS'
-        return response 
+        return Response(stats_data) 

@@ -16,6 +16,8 @@ from .api.opportunities import OpportunityViewSet
 # Router principal
 router = DefaultRouter()
 router.register(r'tiers', TiersViewSet, basename='tiers')
+router.register(r'contacts', ContactViewSet, basename='contacts')
+router.register(r'adresses', AdresseViewSet, basename='adresses')
 router.register(r'opportunities', OpportunityViewSet, basename='opportunities')
 
 # Routers imbriqués pour les sous-ressources des tiers
